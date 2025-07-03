@@ -1,0 +1,27 @@
+# CMake build
+build*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Qt generated
+*.pro.user
+*.autosave
+*.qrc.depends
+*.moc
+*.obj
+*.o
+*.a
+*.so
+*.exe
+*.dll
+*.log
+
+# UI generated
+ui_*.h
+moc_*.cpp
+qrc_*.cpp
+
+# macOS
+.DS_Store
