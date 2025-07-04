@@ -1,28 +1,22 @@
 #test/CMakeLists.txt
 
-#为本目录下的所有目标添加头文件包含路径
-#这使得测试代码中的 #include "../src/Model/GameModel.h" 这样的相对路径能够被编译器正确解析
-#CMAKE_SOURCE_DIR 指向顶层项目的根目录
+#为本目录下的所有目标添加头文件包含路径，以便找到src/下的头文件
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 #--- 目标1: Model测试 ---
-#定义一个名为TestModel的可执行文件目标
 add_executable(TestModel
         TestGameModel.cpp
         #测试代码需要链接被测试的源代码实现，所以要包含其.cpp文件
         ${CMAKE_SOURCE_DIR}/src/Model/GameModel.cpp
 )
-#为TestModel目标链接它所依赖的Qt库，这里是Core和Test模块
 target_link_libraries(TestModel Qt::Core Qt::Test)
 
 #--- 目标2: ViewModel测试 ---
-#定义一个名为TestViewModel的可执行文件目标
 add_executable(TestViewModel
         TestGameViewModel.cpp
         ${CMAKE_SOURCE_DIR}/src/Model/GameModel.cpp
         ${CMAKE_SOURCE_DIR}/src/ViewModel/GameViewModel.cpp
 )
-#为TestViewModel目标链接它所依赖的Qt库
 target_link_libraries(TestViewModel Qt::Core Qt::Test)
 
 #--- 关键修正点：手动注册每个测试用例 ---
@@ -45,12 +39,19 @@ ADD_QTEST_CASE(TestModel testFlagging)
 ADD_QTEST_CASE(TestModel testWinCondition)
 ADD_QTEST_CASE(TestModel testLoseCondition)
 ADD_QTEST_CASE(TestModel testFlaggingDoesNotStartGame)
+ADD_QTEST_CASE(TestModel testQuestionMarkCycle)
+ADD_QTEST_CASE(TestModel testFlagLimit)
+ADD_QTEST_CASE(TestModel testChordAction)
+ADD_QTEST_CASE(TestModel testChordActionOnWrongFlags)
+
 
 #--- 为TestViewModel的每个测试用例调用宏来注册 ---
 ADD_QTEST_CASE(TestViewModel testStartGameCommand)
 ADD_QTEST_CASE(TestViewModel testRevealTranslatesToUIUpdate)
 ADD_QTEST_CASE(TestViewModel testGameOverWinTranslation)
 ADD_QTEST_CASE(TestViewModel testGameOverLoseTranslation)
+ADD_QTEST_CASE(TestViewModel testFlagLimitMessage)
+ADD_QTEST_CASE(TestViewModel testQuestionMarkDisplay)
 
 
 #--- Windows部署脚本 ---

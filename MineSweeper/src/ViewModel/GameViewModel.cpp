@@ -98,7 +98,7 @@ void GameViewModel::onModelChanged() {
             } else if (cell.isQuestionMark) {  //对问号状态的判断
                 info.text = "❓";
             } else if (cell.isRevealed) {
-                info.enabled = false;  //已翻开的格子不可再点击
+                //这里不再令已翻开的格子不可被点击
                 info.styleSheet = "background-color: #e0e0e0; border: 1px solid #808080;";
                 if (cell.adjacentMines > 0) {
                     info.text = QString::number(cell.adjacentMines);

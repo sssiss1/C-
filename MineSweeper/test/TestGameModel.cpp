@@ -13,7 +13,11 @@ private slots:
     void testFlagging();                  //测试标记和取消标记旗帜的功能
     void testWinCondition();              //测试胜利条件的触发
     void testLoseCondition();             //测试失败条件的触发
-    void testFlaggingDoesNotStartGame();  //测试右键点击不应更改游戏状态
+    void testFlaggingDoesNotStartGame();  //测试右键插旗不应更改游戏状态
+    void testQuestionMarkCycle();         //测试问号标记的循环逻辑
+    void testFlagLimit();                 //测试旗帜数量达到上限后的行为
+    void testChordAction();               //测试满足条件的清扫（双键）功能
+    void testChordActionOnWrongFlags();   //测试错误标记旗帜时，清扫功能是否会触发失败
 };
 
 //测试用例：验证模型在默认构造函数调用后，其内部状态是否符合预期
@@ -80,7 +84,6 @@ void TestGameModel::testWinCondition() {
     model.startGame(2, 2, 1);  //开始一个极简的2x2游戏，只有1个雷，3个安全格
 
     bool gameWon = false;  //用于捕捉gameOver信号的标志位
-    //使用Qt的信号/槽机制连接到模型的gameOver信号，当信号发出时，用Lambda表达式更新标志位
     QObject::connect(&model, &GameModel::gameOver, [&](bool victory) {
         if (victory) {
             gameWon = true;  //如果接收到的信号表示胜利，则设置标志位
@@ -91,13 +94,8 @@ void TestGameModel::testWinCondition() {
     for (int r = 0; r < 2; ++r) {
         for (int c = 0; c < 2; ++c) {
             if (model.getGameState() == GameState::Won) break;  //如果已经胜利，则提前退出循环
-            //首次点击是安全的，并且会布置地雷
-            if (r == 0 && c == 0) {
-                 model.revealCell(r, c);
-                 continue;  //继续下一次循环
-            }
-            //翻开其他不是雷的格子
             if (!model.getCell(r, c).isMine) {
+                 //首次点击总是安全的，并且会布置地雷
                  model.revealCell(r, c);
             }
         }
@@ -149,19 +147,96 @@ void TestGameModel::testLoseCondition() {
 void TestGameModel::testFlaggingDoesNotStartGame() {
     GameModel model;  //创建一个GameModel实例
     model.startGame(5, 5, 5);  //开始一个新游戏
-    //Arrange: 验证初始游戏状态为Ready
-    QCOMPARE(model.getGameState(), GameState::Ready);
-    //Act: 模拟玩家首次交互为右键插旗
-    model.flagCell(1, 1);
-    //Assert: 验证游戏状态在插旗后并未改变
-    QCOMPARE(model.getGameState(), GameState::Ready);
-    //Assert: 同时验证旗帜被正确标记
-    QVERIFY(model.getCell(1, 1).isFlagged);
-    //Act: 现在模拟一次左键点击
-    model.revealCell(2, 2);
-    //Assert: 验证只有在左键点击后，游戏状态才切换为Playing
-    QCOMPARE(model.getGameState(), GameState::Playing);
+    QCOMPARE(model.getGameState(), GameState::Ready);  //验证初始游戏状态为Ready
+    model.flagCell(1, 1);  //模拟玩家首次交互为右键插旗
+    QCOMPARE(model.getGameState(), GameState::Ready);  //验证游戏状态在插旗后并未改变
+    QVERIFY(model.getCell(1, 1).isFlagged);  //同时验证旗帜被正确标记
+    model.revealCell(2, 2);  //现在模拟一次左键点击
+    QCOMPARE(model.getGameState(), GameState::Playing);  //验证只有在左键点击后，游戏状态才切换为Playing
 }
 
-QTEST_MAIN(TestGameModel)  //这个宏为测试类自动生成一个main函数，使其可以独立运行
-#include "TestGameModel.moc"  //必须包含由MOC（元对象编译器）为该文件生成的代码，以实现信号/槽和QTest的内部机制
+//测试用例：验证中键点击标记问号的功能
+void TestGameModel::testQuestionMarkCycle() {
+    GameModel model;
+    model.startGame(5, 5, 5);
+    QVERIFY(!model.getCell(1, 1).isQuestionMark);  //验证初始状态不是问号
+    model.cycleCellMark(1, 1);  //第一次点击，标记为问号
+    QVERIFY(model.getCell(1, 1).isQuestionMark);  //验证已标记
+    model.cycleCellMark(1, 1);  //第二次点击，取消问号
+    QVERIFY(!model.getCell(1, 1).isQuestionMark);  //验证已取消
+
+    model.flagCell(1, 1);  //先插旗
+    QVERIFY(model.getCell(1, 1).isFlagged);
+    model.cycleCellMark(1, 1);  //再标记问号
+    QVERIFY(model.getCell(1, 1).isQuestionMark);  //验证问号标记成功
+    QVERIFY(!model.getCell(1, 1).isFlagged);  //验证旗帜标记被覆盖
+}
+
+//测试用例：验证旗帜数量达到上限后不能再插旗
+void TestGameModel::testFlagLimit() {
+    GameModel model;
+    model.startGame(5, 5, 2);  //开始一个只有2个雷（即可用旗帜）的游戏
+    model.flagCell(0, 0);  //标记第1个旗
+    model.flagCell(0, 1);  //标记第2个旗
+    QCOMPARE(model.getFlagCount(), 2);  //验证旗帜数已达上限
+    model.flagCell(0, 2);  //尝试标记第3个旗
+    QVERIFY(!model.getCell(0, 2).isFlagged);  //验证第3个格子没有被标记
+    QCOMPARE(model.getFlagCount(), 2);  //验证旗帜总数仍然是2
+}
+
+//测试用例：验证正确的清扫（双键）功能
+void TestGameModel::testChordAction() {
+    //Arrange: 定义一个确定的棋盘布局，-1代表地雷
+    QVector<QVector<int>> layout = {
+        { -1, 0, 0 },
+        {  0, 0, 0 },
+        {  0, 0, 0 }
+    };
+    //使用新的构造函数创建一个状态确定的model
+    GameModel model(layout);
+
+    //Act
+    model.revealCell(1, 1); //翻开(1,1)，它的数字现在确定为1
+    model.flagCell(0, 0);   //在已知的地雷(0,0)上插旗
+
+    model.revealCell(1, 1); //在(1,1)上执行清扫
+
+    //Assert: 验证周围所有未插旗的安全格子都被翻开了
+    QVERIFY(model.getCell(0, 1).isRevealed);
+    QVERIFY(model.getCell(1, 0).isRevealed);
+    QVERIFY(model.getCell(1, 2).isRevealed);
+    QVERIFY(model.getCell(2, 0).isRevealed);
+    QVERIFY(model.getCell(2, 1).isRevealed);
+    QVERIFY(model.getCell(2, 2).isRevealed);
+    QVERIFY(!model.getCell(0, 0).isRevealed); //验证地雷没有被翻开
+}
+
+//测试用例：验证当旗帜标记错误时，清扫会触发失败
+void TestGameModel::testChordActionOnWrongFlags() {
+    //Arrange
+    QVector<QVector<int>> layout = {
+        { -1, 0, 0 },
+        {  0, 0, 0 },
+        {  0, 0, 0 }
+    };
+    GameModel model(layout);
+
+    bool gameLost = false;
+    QObject::connect(&model, &GameModel::gameOver, [&](bool victory){
+        if(!victory) gameLost = true;
+    });
+
+    model.revealCell(1, 1);      //翻开(1,1)
+    model.flagCell(0, 1);      //在安全格(0,1)上错误地插旗
+
+    //Act: 执行清扫，此时由于旗帜数已满足但位置错误，会导致真正的地雷(0,0)被翻开
+    model.revealCell(1, 1);
+
+    //Assert
+    QVERIFY(gameLost); //验证游戏失败
+    QCOMPARE(model.getGameState(), GameState::Lost); //验证游戏状态
+}
+
+
+QTEST_MAIN(TestGameModel)
+#include "TestGameModel.moc"

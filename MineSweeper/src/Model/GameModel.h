@@ -36,6 +36,10 @@ public:
     //`QObject *parent = nullptr` 是Qt对象树机制的标准写法，用于自动内存管理
     explicit GameModel(QObject *parent = nullptr);
 
+    //仅供测试用的构造函数，允许传入指定的网格状态
+    ////新增
+    explicit GameModel(const QVector<QVector<int>>& layout, QObject *parent = nullptr);
+
     //--- 公共接口 (Public API) ---
     //这些是ViewModel可以调用的方法，用于驱动游戏逻辑
 

@@ -6,6 +6,29 @@
 //初始化列表 `: QObject(parent)` 调用基类的构造函数，`m_gameState(GameState::Ready)` 初始化游戏状态为准备就绪
 GameModel::GameModel(QObject *parent) : QObject(parent), m_gameState(GameState::Ready){}
 
+//仅供测试使用的构造函数实现
+////新增
+GameModel::GameModel(const QVector<QVector<int>>& layout, QObject *parent) : QObject(parent) {
+    m_rows = layout.size();
+    m_cols = m_rows > 0 ? layout[0].size() : 0;
+    m_mineCount = 0;
+    m_revealedCount = 0;
+    //为了方便测试，我们直接将游戏状态设置为Playing
+    m_gameState = GameState::Playing;
+
+    m_grid.assign(m_rows, QVector<Cell>(m_cols));
+    for(int r = 0; r < m_rows; ++r) {
+        for(int c = 0; c < m_cols; ++c) {
+            if(layout[r][c] == -1) { //根据传入的布局设置地雷
+                m_grid[r][c].isMine = true;
+                m_mineCount++;
+            }
+        }
+    }
+    //根据地雷位置计算所有格子的数字
+    calculateAdjacentMines();
+}
+
 //开始新游戏的实现
 void GameModel::startGame(int rows, int cols, int mines) {
     //初始化或重置游戏的核心数据
@@ -68,9 +91,48 @@ void GameModel::calculateAdjacentMines() {
 //翻开格子的实现
 ////修改
 void GameModel::revealCell(int row, int col) {
-    //边界检查和状态验证：如果坐标无效，或格子已翻开/已标记，或游戏已结束，则不执行任何操作
-    if (!isValid(row, col) || m_grid[row][col].isRevealed || m_grid[row][col].isFlagged || m_gameState == GameState::Won || m_gameState == GameState::Lost) {
+    //边界检查，检查坐标是否有效
+    if (!isValid(row, col)) {
         return;
+    }
+
+    //处理点击已翻开格子的“清扫”逻辑
+    if (m_grid[row][col].isRevealed && m_grid[row][col].adjacentMines > 0) {  //清扫逻辑只对已经被翻开的、且有数字的格子生效
+        int adjacentFlags = 0;
+        //统计周围8个格子的旗帜数量
+        for (int dr = -1; dr <= 1; ++dr) {
+            for (int dc = -1; dc <= 1; ++dc) {
+                if (dr == 0 && dc == 0) continue;
+                if (isValid(row + dr, col + dc) && m_grid[row + dr][col + dc].isFlagged) {
+                    adjacentFlags++;
+                }
+            }
+        }
+
+        //如果旗帜数等于格子上的数字，则翻开周围所有未标记旗帜的格子
+        if (adjacentFlags == m_grid[row][col].adjacentMines) {
+            for (int dr = -1; dr <= 1; ++dr) {
+                for (int dc = -1; dc <= 1; ++dc) {
+                    if (dr == 0 && dc == 0) continue;
+                    // 在递归调用之前，检查邻居格子是否尚未被翻开
+                    int newRow = row + dr;
+                    int newCol = col + dc;
+                    if (isValid(newRow, newCol) && !m_grid[newRow][newCol].isRevealed) {
+                        //对周围每个未翻开的格子，递归地调用revealCell
+                        //revealCell自身包含了所有边界检查和翻开逻辑，所以直接调用它最安全，它会自动处理踩雷、连锁翻开空白等所有情况
+                        revealCell(newRow, newCol);
+                    }
+                }
+            }
+        }
+        //直接返回，不再执行下面的常规翻开逻辑
+        return;
+    }
+
+    //常规翻开逻辑
+    //边界检查和状态验证
+    if (m_grid[row][col].isRevealed || m_grid[row][col].isFlagged || m_gameState == GameState::Won || m_gameState == GameState::Lost) {
+        return;  //这里不再对isValid进行重复检查
     }
 
     //如果这是第一次点击（游戏处于Ready状态）
