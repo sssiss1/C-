@@ -28,6 +28,8 @@ public:
     //当用户右键点击一个格子时，View调用此命令，请求在该格子上标记/取消标记旗帜
     //参数是用户点击的格子的坐标
     virtual void toggleFlagRequest(int row, int col) = 0;
-};
 
+    ////新增
+    virtual void cycleMarkRequest(int row, int col) = 0;
+};
 #endif // IGAMECOMMANDS_H

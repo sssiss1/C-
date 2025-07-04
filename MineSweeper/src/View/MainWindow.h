@@ -48,6 +48,8 @@ public:
     void onShowGameOverDialog(const QString& message) override;
     void updateFlagsLabel(int flags) override;
     void updateStatusLabel(const QString& text) override;
+    ////新增
+    void showTemporaryMessage(const QString& message, int durationMs) override;
 
 protected:
     //重写QObject的事件过滤器方法，用于捕获和处理子控件的特定事件（此处为右键点击）

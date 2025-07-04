@@ -66,7 +66,7 @@ void TestGameViewModel::testStartGameCommand() {
     QCOMPARE(mockUI.boardSizeChangedCount, 1);
     QCOMPARE(mockUI.lastBoardSize, QSize(12, 8));
     QCOMPARE(mockUI.statusLabelCount, 1);
-    QCOMPARE(mockUI.lastStatusText, "Game in progress...");
+    QCOMPARE(mockUI.lastStatusText, "游戏中...");
 }
 
 //测试用例：验证翻开格子后UI的更新
@@ -110,9 +110,9 @@ void TestGameViewModel::testGameOverWinTranslation() {
 
     //验证ViewModel是否向UI发送了正确的胜利指令
     QCOMPARE(mockUI.gameOverDialogCount, 1);
-    QVERIFY(mockUI.lastGameOverMessage.contains("Congratulations"));
+    QVERIFY(mockUI.lastGameOverMessage.contains("恭喜"));
     QCOMPARE(mockUI.statusLabelCount, 1);
-    QCOMPARE(mockUI.lastStatusText, "You Win! :)");
+    QCOMPARE(mockUI.lastStatusText, "你赢了! :)");
 }
 
 //测试用例：验证失败场景的翻译
@@ -146,9 +146,9 @@ void TestGameViewModel::testGameOverLoseTranslation() {
 
     //验证ViewModel是否向UI发送了正确的失败指令
     QCOMPARE(mockUI.gameOverDialogCount, 1);
-    QVERIFY(mockUI.lastGameOverMessage.contains("Boom"));
+    QVERIFY(mockUI.lastGameOverMessage.contains("砰"));
     QCOMPARE(mockUI.statusLabelCount, 1);
-    QCOMPARE(mockUI.lastStatusText, "You Lost! :(");
+    QCOMPARE(mockUI.lastStatusText, "你输了! :(");
 }
 
 

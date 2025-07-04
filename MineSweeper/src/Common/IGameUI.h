@@ -50,6 +50,9 @@ public:
     //当游戏状态文本（如 "进行中"、"胜利"）变化时，ViewModel会调用此方法
     //View需要更新界面上显示状态的标签
     virtual void updateStatusLabel(const QString& text) = 0;
+
+    ////新增
+    virtual void showTemporaryMessage(const QString& message, int durationMs) = 0;
 };
 
 #endif // IGAMEUI_H

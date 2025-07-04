@@ -30,7 +30,7 @@ void GameViewModel::startNewGame(int rows, int cols, int mines) {
 
     //在 Model初始化后，ViewModel主动向UI发送初始化的渲染指令
     if (m_ui) {
-        m_ui->updateStatusLabel("Game in progress...");
+        m_ui->updateStatusLabel("游戏中...");
         //QSize的构造(宽度, 高度)对应(列数, 行数)
         m_ui->onBoardSizeChanged(QSize(cols, rows));
     }
@@ -43,16 +43,36 @@ void GameViewModel::revealCellRequest(int row, int col) {
 }
 
 //toggleFlagRequest命令的实现
+////修改
 void GameViewModel::toggleFlagRequest(int row, int col) {
-    //同样，直接将View的插旗请求转发给Model
+    //在调用Model的flagCell之前，检查旗帜是否已用完
+    const int currentFlags = m_model.getFlagCount();
+    const int mineCount = m_model.getMineCount();
+    const bool isFlagged = m_model.getCell(row, col).isFlagged;
+
+    if (!isFlagged && currentFlags >= mineCount) {
+        //如果想新插旗但旗帜已用完，则通过UI接口显示临时消息
+        if (m_ui) {
+            m_ui->showTemporaryMessage("旗帜已用完! 没有更多地雷了!", 2000); // 显示2秒
+        }
+        return;  //不再调用model.flagCell
+    }
+
     m_model.flagCell(row, col);
+}
+
+//cycleMarkRequest的实现
+////新增
+void GameViewModel::cycleMarkRequest(int row, int col) {
+    m_model.cycleCellMark(row, col);
 }
 
 //--- 槽函数的实现 ---
 
 //onModelChanged槽的实现
+////修改
 void GameViewModel::onModelChanged() {
-    //如果没有关联的 UI，则不执行任何操作
+    //如果没有关联的UI，则不执行任何操作
     if (!m_ui) return;
 
     //从Model获取摘要信息（剩余旗帜数）
@@ -75,6 +95,8 @@ void GameViewModel::onModelChanged() {
                 info.styleSheet = "background-color: red;";
             } else if (cell.isFlagged) {
                 info.text = "🚩";
+            } else if (cell.isQuestionMark) {  //对问号状态的判断
+                info.text = "❓";
             } else if (cell.isRevealed) {
                 info.enabled = false;  //已翻开的格子不可再点击
                 info.styleSheet = "background-color: #e0e0e0; border: 1px solid #808080;";
@@ -103,11 +125,11 @@ void GameViewModel::onGameOver(bool victory) {
 
     //根据Model传递过来的胜利/失败结果，准备不同的提示信息
     if (victory) {
-        m_ui->updateStatusLabel("You Win! :)");
-        m_ui->onShowGameOverDialog("Congratulations! You've cleared the minefield!");
+        m_ui->updateStatusLabel("你赢了! :)");
+        m_ui->onShowGameOverDialog("恭喜! 你成功清除了所有地雷!");
     }
     else {
-        m_ui->updateStatusLabel("You Lost! :(");
-        m_ui->onShowGameOverDialog("Boom! You hit a mine.");
+        m_ui->updateStatusLabel("你输了! :(");
+        m_ui->onShowGameOverDialog("砰! 你踩到地雷了!");
     }
 }

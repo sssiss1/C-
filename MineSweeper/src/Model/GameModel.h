@@ -14,6 +14,7 @@ struct Cell {
     bool isMine = false;  //标记这个格子是否是地雷
     bool isRevealed = false;  //标记这个格子是否已被玩家翻开
     bool isFlagged = false;  //标记这个格子是否已被玩家插上旗帜
+    bool isQuestionMark = false;  //标记格子是否为问号
     int adjacentMines = 0;  //存储该格子周围8个相邻格子中的地雷总数
 };
 
@@ -46,6 +47,9 @@ public:
 
     //处理玩家标记/取消标记一个格子的逻辑
     void flagCell(int row, int col);
+
+    ////新增
+    void cycleCellMark(int row, int col);
 
     //--- Getters (访问器) ---
     //提供对内部状态的只读访问(`const` 关键字表示这些函数不会修改类的任何成员变量)

@@ -33,6 +33,8 @@ public:
     void startNewGame(int rows, int cols, int mines) override;
     void revealCellRequest(int row, int col) override;
     void toggleFlagRequest(int row, int col) override;
+    ////新增
+    void cycleMarkRequest(int row, int col) override;
 
 private slots:
     //--- 槽函数 ---

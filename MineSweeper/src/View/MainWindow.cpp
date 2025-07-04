@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     //`setupUi`是Qt UI系统的核心方法，它会读取.ui文件的内容，并将其中定义的所有控件（按钮、标签等）实例化，以及设置好布局和父子关系
     ui->setupUi(this);
-    setWindowTitle("Minesweeper");  //设置窗口标题
+    setWindowTitle("扫雷");  //设置窗口标题
 
     //View是一个被动的接收者，其更新完全由IGameUI接口的方法驱动
 }
@@ -81,6 +81,10 @@ void MainWindow::onBoardSizeChanged(const QSize& newSize) {
             m_cellButtons[r][c] = button;
         }
     }
+    //在所有按钮都添加到布局后，让窗口自适应到最优尺寸
+    adjustSize();
+    //然后将这个最优尺寸设为固定大小
+    setFixedSize(size());
 }
 
 //更新单个格子外观的实现
@@ -99,12 +103,12 @@ void MainWindow::onCellUpdated(const CellUpdateInfo &info) {
 //显示游戏结束对话框的实现
 void MainWindow::onShowGameOverDialog(const QString &message) {
     //使用Qt的静态方法弹出一个标准的信息对话框
-    QMessageBox::information(this, "Game Over", message);
+    QMessageBox::information(this, "游戏结束", message);
 }
 
 //更新旗帜数量标签的实现
 void MainWindow::updateFlagsLabel(int flags) {
-    ui->flagsLabel->setText(QString("Flags: %1").arg(flags));
+    ui->flagsLabel->setText(QString("旗帜: %1").arg(flags));
 }
 
 //更新状态标签的实现
@@ -123,6 +127,7 @@ void MainWindow::on_newGameButton_clicked(){
 }
 
 //事件过滤器的实现
+////修改
 //标准的QPushButton只提供了一个clicked()信号。这个信号通常由鼠标左键点击触发，它并没有提供专用于右键点击的内置信号
 //为响应右键点击，可以子类化QPushButton（继承），但这样会增加类的数量
 //也可以使用事件过滤器，不用修改QPushButton，而是让另一个对象（通常是父窗口，即这里的MainWindow）来监视按钮的事件，如果发现是右键点击，则进行拦截与处理（先于button自己的事件处理函数被调用）
@@ -133,14 +138,20 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
         if (auto *button = qobject_cast<QPushButton*>(watched)) {
             //将通用事件安全地转换为鼠标事件
             auto *mouseEvent = static_cast<QMouseEvent*>(event);
+            //从按钮的动态属性中读回行列信息
+            int row = button->property("row").toInt();
+            int col = button->property("col").toInt();
             //检查是否是右键
             if (mouseEvent->button() == Qt::RightButton) {
-                //从按钮的动态属性中读回行列信息
-                int row = button->property("row").toInt();
-                int col = button->property("col").toInt();
                 //通过命令接口发出“插旗”的命令
                 if (m_commands) m_commands->toggleFlagRequest(row, col);
                 //返回true，表示事件已被处理，不需要再传递给按钮自身，这可以防止右键点击时按钮出现“按下”的视觉效果
+                return true;
+            }
+            //检查是否是中键
+            else if (mouseEvent->button() == Qt::MiddleButton) {
+                //通过命令接口发出“标记问号”的命令
+                if (m_commands) m_commands->cycleMarkRequest(row, col);
                 return true;
             }
         }
@@ -148,4 +159,11 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
     //对于所有其他我们不关心的事件，调用基类的实现，让Qt按默认方式处理
     //事件会继续被传递给它原本的目标——button，然后button会按照它自己的标准流程来处理这个事件
     return QMainWindow::eventFilter(watched, event);
+}
+
+//showTemporaryMessage的实现
+////新增
+void MainWindow::showTemporaryMessage(const QString& message, int durationMs) {
+    // 使用主窗口的状态栏来显示临时消息
+    statusBar()->showMessage(message, durationMs);
 }

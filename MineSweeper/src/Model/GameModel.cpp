@@ -66,6 +66,7 @@ void GameModel::calculateAdjacentMines() {
 }
 
 //翻开格子的实现
+////修改
 void GameModel::revealCell(int row, int col) {
     //边界检查和状态验证：如果坐标无效，或格子已翻开/已标记，或游戏已结束，则不执行任何操作
     if (!isValid(row, col) || m_grid[row][col].isRevealed || m_grid[row][col].isFlagged || m_gameState == GameState::Won || m_gameState == GameState::Lost) {
@@ -78,7 +79,12 @@ void GameModel::revealCell(int row, int col) {
         m_gameState = GameState::Playing;  //游戏状态变为“进行中”
     }
 
-    m_grid[row][col].isRevealed = true;  //将当前格子标记为“已翻开”
+    //当一个格子被翻开时，对其做状态清除，它不能再是问号或旗帜（虽然阻止翻开旗帜，但还是在这里进行状态清除以作保障）
+    m_grid[row][col].isQuestionMark = false;
+    m_grid[row][col].isFlagged = false;
+
+    //将当前格子标记为“已翻开”
+    m_grid[row][col].isRevealed = true;
 
     //检查是否踩到地雷
     if (m_grid[row][col].isMine) {
@@ -100,15 +106,47 @@ void GameModel::revealCell(int row, int col) {
 }
 
 //标记/取消标记旗帜的实现
+////修改
 void GameModel::flagCell(int row, int col) {
     //边界检查：如果坐标无效，或格子已翻开，或游戏已结束，则不执行任何操作
     if (!isValid(row, col) || m_grid[row][col].isRevealed || m_gameState == GameState::Won || m_gameState == GameState::Lost) {
         return;
     }
 
-    //切换标记状态
-    m_grid[row][col].isFlagged = !m_grid[row][col].isFlagged;
+    //如果格子当前已被标记为旗帜，则可以取消标记
+    if (m_grid[row][col].isFlagged) {
+        m_grid[row][col].isFlagged = false;
+    }
+    else {
+        //如果想新标记一个旗帜，检查旗帜数量是否已用完
+        if (getFlagCount() >= m_mineCount) {
+            //旗帜已用完，直接返回，不做任何操作，提示信息由ViewModel处理
+            return;
+        }
+        m_grid[row][col].isFlagged = true;
+        m_grid[row][col].isQuestionMark = false;  //插旗会覆盖问号
+    }
+
     emit modelChanged();  //发出信号，通知ViewModel更新UI以显示/隐藏旗帜
+}
+
+//cycleCellMark的实现
+////新增
+void GameModel::cycleCellMark(int row, int col) {
+    if (!isValid(row, col) || m_grid[row][col].isRevealed || m_gameState == GameState::Won || m_gameState == GameState::Lost) {
+        return;
+    }
+
+    //状态循环：空白/插旗->问号->空白
+    if (m_grid[row][col].isQuestionMark) {
+        m_grid[row][col].isQuestionMark = false;
+    }
+    else {
+        m_grid[row][col].isQuestionMark = true;
+        m_grid[row][col].isFlagged = false;  //标记问号会覆盖旗帜
+    }
+
+    emit modelChanged();
 }
 
 //getCell的实现
