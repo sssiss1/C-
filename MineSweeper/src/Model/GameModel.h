@@ -1,99 +1,99 @@
+/*
+ * GameModel.h
+ *
+ * 文件用途：
+ * 定义GameModel类，这是MVVM中的Model层
+ * 它封装了扫雷游戏的核心数据（如棋盘网格、地雷位置）和纯粹的游戏逻辑（如揭开格子、胜负判断）
+ * GameModel完全不了解UI的存在，是独立且可重用的游戏引擎
+ */
+
 #ifndef MINESWEEPER_GAMEMODEL_H
 #define MINESWEEPER_GAMEMODEL_H
 
-/*
-Model是整个应用的核心，封装了所有的数据和业务逻辑，并且与界面（View）完全无关
-在扫雷游戏中，GameModel负责管理棋盘状态、地雷位置、胜负判断等所有核心规则
-*/
+#include <QObject>
+#include <QVector>
+#include <QPoint>
 
-#include <QObject>  //包含Qt的核心基类，GameModel继承自QObject以使用信号/槽机制
-#include <QVector>  //包含Qt的动态数组容器，用于高效地存储二维网格数据
-
-//定义了单个格子的所有状态信息，用于存储格子数据
+//代表棋盘上一个单元格的数据结构
 struct Cell {
-    bool isMine = false;  //标记这个格子是否是地雷
-    bool isRevealed = false;  //标记这个格子是否已被玩家翻开
-    bool isFlagged = false;  //标记这个格子是否已被玩家插上旗帜
-    int adjacentMines = 0;  //存储该格子周围8个相邻格子中的地雷总数
+    bool isMine = false; //是否是地雷
+    bool isRevealed = false; //是否已被揭开
+    bool isFlagged = false; //是否被标记为旗帜
+    bool isQuestionMark = false; //是否被标记为问号
+    int adjacentMines = 0; //周围相邻的地雷数量
 };
 
-//定义了游戏可能处于的几种状态
+//游戏状态的枚举
 enum class GameState {
-    Ready,  //准备状态：游戏已初始化，但玩家还未进行第一次点击
-    Playing,  //进行中状态：玩家已开始点击，游戏正在进行中
-    Won,  //胜利状态：玩家成功翻开所有非地雷格子，游戏胜利
-    Lost  //失败状态玩家点到了地雷，游戏失败
+    Ready,    //准备开始，等待第一次点击
+    Playing,  //游戏中
+    Won,      //游戏胜利
+    Lost      //游戏失败
 };
 
-//GameModel类是游戏的核心逻辑和数据中心
-//它继承自QObject，以能够发出信号，通知外界（ViewModel）其内部状态发生了变化
+//游戏模型类，继承自QObject以使用信号和槽
 class GameModel : public QObject {
-    Q_OBJECT  //一个特殊的Qt宏，必须包含在使用信号/槽的类中，使得MOC（元对象编译器）能够处理这个类
+    Q_OBJECT
 
 public:
-    //构造函数，`explicit` 关键字防止意外的隐式类型转换。
-    //`QObject *parent = nullptr` 是Qt对象树机制的标准写法，用于自动内存管理
+    //默认构造函数
     explicit GameModel(QObject *parent = nullptr);
+    //用于测试的构造函数，可以传入一个预设的棋盘布局
+    explicit GameModel(const QVector<QVector<int>>& layout, QObject *parent = nullptr);
 
-    //--- 公共接口 (Public API) ---
-    //这些是ViewModel可以调用的方法，用于驱动游戏逻辑
-
-    //开始一局新游戏，并根据指定的参数初始化棋盘
+    //开始一个新游戏，初始化棋盘状态
     void startGame(int rows, int cols, int mines);
-
-    //处理玩家翻开一个格子的逻辑
+    //揭开指定坐标的单元格
     void revealCell(int row, int col);
-
-    //处理玩家标记/取消标记一个格子的逻辑
+    //标记/取消标记指定坐标的单元格为旗帜
     void flagCell(int row, int col);
+    //循环切换指定坐标单元格的标记（空白 -> 问号 -> 空白）
+    void cycleCellMark(int row, int col);
+    //处理提示请求，揭开或标记一个单元格，并返回它之前是否是雷
+    bool resolveHint(int row, int col);
 
-    //--- Getters (访问器) ---
-    //提供对内部状态的只读访问(`const` 关键字表示这些函数不会修改类的任何成员变量)
-    int getRows() const { return m_rows; }  //返回棋盘的行数
-    int getCols() const { return m_cols; }  //返回棋盘的列数
-    int getMineCount() const { return m_mineCount; }  //返回总地雷数
-    int getFlagCount() const;  //返回当前已标记旗帜的数量
-    const Cell& getCell(int row, int col) const;  //返回指定位置格子的只读引用(避免数据拷贝)
-    GameState getGameState() const { return m_gameState; }  //返回当前的游戏状态
+    //获取棋盘行数
+    int getRows() const { return m_rows; }
+    //获取棋盘列数
+    int getCols() const { return m_cols; }
+    //获取总地雷数
+    int getMineCount() const { return m_mineCount; }
+    //获取当前已标记的旗帜数量
+    int getFlagCount() const;
+    //获取指定坐标单元格的只读引用
+    const Cell& getCell(int row, int col) const;
+    //获取当前游戏状态
+    GameState getGameState() const { return m_gameState; }
+    //获取当前问号标记的数量
+    int getQuestionMarkCount() const;
+    //查找并返回第一个问号标记的坐标
+    QPoint findFirstQuestionMark() const;
 
 signals:
-    //--- 信号 ---
-    //当模型的状态发生改变时，会发出这些信号,ViewModel可以连接到这些信号来接收通知
-
-    //当棋盘上的任何数据（如格子状态、标记等）发生变化时发出
-    //这是一个通用的“刷新”信号，通知监听者需要从Model重新获取数据来更新自己
+    //当模型数据发生任何变化时发射此信号
     void modelChanged();
-
-    //当游戏结束时发出
-    //`bool victory` 参数明确告诉监听者游戏是以胜利（true）还是失败（false）结束
+    //当游戏结束（胜利或失败）时发射此信号
     void gameOver(bool victory);
 
 private:
-    //--- 私有辅助函数 ---
-    //这些函数封装了内部逻辑，不直接暴露给外部
-
-    //在玩家首次点击后，根据点击位置安全地随机布置地雷
+    //在第一次点击后，安全地放置地雷（确保第一次点击不是雷）
     void placeMines(int firstClickRow, int firstClickCol);
-
-    //计算并更新棋盘上每个非地雷格子周围的地雷数量
+    //计算每个非地雷单元格周围的地雷数量
     void calculateAdjacentMines();
-
-    //当玩家点开一个空白格（周围没有地雷）时，递归地自动翻开所有相邻的空白格
+    //当揭开一个空白（周围0个雷）单元格时，递归地揭开其相邻的单元格
     void revealEmptyAdjacentCells(int row, int col);
-
-    //检查是否满足胜利条件（所有非地雷格子都已被翻开）
+    //检查是否满足胜利条件
     void checkWinCondition();
-
-    //检查给定的坐标是否在棋盘的有效范围内
+    //检查给定的坐标是否在棋盘范围内
     bool isValid(int row, int col) const;
 
-    //--- 核心数据成员 ---
-    int m_rows = 0;  //棋盘的行数
-    int m_cols = 0;  //棋盘的列数
-    int m_mineCount = 0;  //游戏设定的地雷总数
-    QVector<QVector<Cell>> m_grid;  //存储整个棋盘状态的二维动态数组
-    GameState m_gameState = GameState::Ready;  //当前游戏所处的状态
-    int m_revealedCount = 0;  //已经翻开的非地雷格子计数，用于快速判断胜利条件
+    //私有成员变量，存储游戏的核心数据
+    int m_rows = 0; //行数
+    int m_cols = 0; //列数
+    int m_mineCount = 0; //地雷总数
+    QVector<QVector<Cell>> m_grid; //存储所有单元格状态的二维向量
+    GameState m_gameState = GameState::Ready; //当前游戏状态
+    int m_revealedCount = 0; //已揭开的非地雷单元格数量
 };
 
 #endif //MINESWEEPER_GAMEMODEL_H

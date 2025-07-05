@@ -1,33 +1,45 @@
+/*
+* IGameCommands.h
+ *
+ * 文件用途：
+ * 定义IGameCommands接口（纯虚基类）
+ * 这个接口代表了所有从View层发往ViewModel层或App层的用户意图或命令
+ * View层通过这个接口与上层通信，实现了View与ViewModel/App的具体实现解耦
+ */
+
 #ifndef IGAMECOMMANDS_H
 #define IGAMECOMMANDS_H
 
-/*
-抽象接口IGameCommands，是View->ViewModel的单向通信契约，定义了View可以向ViewModel发出的所有“用户操作命令”
-任何处理游戏逻辑的类（这里的GameViewModel）必须能够相应该接口中规定的所有命令
-View通过这个接口来向ViewModel发出指令，不需要知道ViewModel的具体类型
-*/
+#include "GameModes.h"
 
-//IGameCommands 是一个纯虚类（接口），定义了View可以向逻辑层发出的所有“命令”
-//View通过一个指向IGameCommands的指针来调用ViewModel的功能，从而实现对具体ViewModel类的解耦
-//任何实现了这个接口的类，都可以接收并处理来自View的用户操作请求
+//定义了所有View可以发出的命令的接口
 class IGameCommands {
 public:
-    //虚析构函数，使用编译器生成的默认析构函数，确保当通过基类指针删除派生类对象时，派生类的析构函数能被正确调用，防止内存泄漏
+    //虚析构函数，确保派生类对象能被正确销毁
     virtual ~IGameCommands() = default;
 
-    //--- 以下是纯虚函数，构成了命令接口的“合同” ---
+    //--- 游戏流程命令 ---
+    //请求开始一个新游戏，并指定模式和难度
+    virtual void startNewGame(GameMode mode, GameDifficulty difficulty) = 0;
+    //请求开始闯关模式的下一关
+    virtual void startNextCampaignLevel() = 0;
+    //请求返回主菜单界面
+    virtual void returnToHomeRequest() = 0;
 
-    //View调用此命令来请求开始一局新游戏
-    //参数定义了新游戏的难度（行数、列数、地雷数）
-    virtual void startNewGame(int rows, int cols, int mines) = 0;
-
-    //当用户左键点击一个格子时，View调用此命令，请求翻开该格子
-    //参数是用户点击的格子的坐标
+    //--- 游戏操作命令 ---
+    //请求揭开一个单元格
     virtual void revealCellRequest(int row, int col) = 0;
-
-    //当用户右键点击一个格子时，View调用此命令，请求在该格子上标记/取消标记旗帜
-    //参数是用户点击的格子的坐标
+    //请求切换一个单元格的旗帜状态
     virtual void toggleFlagRequest(int row, int col) = 0;
-};
+    //请求循环切换一个单元格的标记（正常 -> 问号 -> 正常）
+    virtual void cycleMarkRequest(int row, int col) = 0;
+    //请求使用提示功能
+    virtual void hintRequest() = 0;
 
+    //--- 排行榜命令 ---
+    //请求加载排行榜数据
+    virtual void loadHighScoresRequest() = 0;
+    //请求清空排行榜数据
+    virtual void clearHighScoresRequest() = 0;
+};
 #endif // IGAMECOMMANDS_H

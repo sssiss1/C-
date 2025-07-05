@@ -1,55 +1,59 @@
+/*
+* IGameUI.h
+ *
+ * 文件用途：
+ * 定义IGameUI接口（纯虚基类）
+ * 这个接口代表了所有从ViewModel层发往View层的UI更新指令
+ * ViewModel通过这个接口来驱动View的显示，实现了ViewModel与View具体实现的解耦
+ */
+
 #ifndef IGAMEUI_H
 #define IGAMEUI_H
 
-/*
-抽象接口IGameUI，是ViewModel->View的单向通信契约，定义了ViewModel可以对View下达的所有“渲染指令”
-任何想要在屏幕上展示游戏界面的类（如MainWindow）必须完成该接口中规定的所有任务
-ViewModel通过该接口指挥View，不需要知道View的具体类型
-*/
+#include <QString>
+#include <QSize>
+#include <QVector>
+#include "GameModes.h"
 
-#include <QString>  //包含Qt的字符串类
-#include <QSize>   //包含Qt的尺寸类（宽度和高度）
-
-//定义一个数据传输对象（Data Transfer Object，DTO），把多个相关的数据打包成一个独立的结构体，方便在不同层之间一次性传递
-//这里，该对象封装了更新单个格子UI所需的所有信息
-//它是ViewModel和View之间通信契约的一部分，所以定义在Common层
+//用于更新单个单元格显示信息的数据结构
 struct CellUpdateInfo {
-    int row, col;  //格子的位置（行、列）
-    QString text;  //格子上需要显示的文本（如数字、"🚩"、"💣"）
-    QString styleSheet;  //控制格子外观的Qt样式表（CSS），用于改变颜色等
-    bool enabled;  //格子是否可点击（已翻开的格子应被禁用）
+    int row, col; //单元格的坐标
+    QString text; //要显示的文本（如数字、旗帜、雷等）
+    QString styleSheet; //单元格的Qt样式表（用于设置颜色等）
+    bool enabled; //单元格是否可点击
 };
 
-//IGameUI是一个纯虚类（接口），定义了UI层必须对外提供的能力
-//ViewModel通过一个指向IGameUI的指针来与View通信，从而实现对具体View类的解耦
-//任何实现了这个接口的类，都可以被ViewModel所驱动
+//用于在排行榜中显示一条记录的数据结构
+struct HighScoreItem {
+    QString mode; //游戏模式
+    QString difficulty; //游戏难度描述
+    QString time; //最佳时间
+};
+
+//定义了所有ViewModel可以对View执行的更新操作的接口
 class IGameUI {
 public:
-    //虚析构函数，使用编译器生成的默认析构函数，确保当通过基类指针删除派生类对象时，派生类的析构函数能被正确调用，防止内存泄漏
+    //虚析构函数
     virtual ~IGameUI() = default;
 
-    //--- 以下是纯虚函数，构成了接口的“合同” ---
-    //“= 0”表明这是一个纯虚函数，意味着这个类本身不能被实例化，并且任何继承自IGameUI的子类都必须提供这个函数的具体实现
-
-    //当游戏棋盘的尺寸发生变化时，ViewModel会调用此方法
-    //View需要根据新的尺寸重建其内部的按钮网格
+    //通知UI棋盘尺寸已改变，UI需要重建棋盘
     virtual void onBoardSizeChanged(const QSize& newSize) = 0;
-
-    //当单个格子的状态需要更新时，ViewModel会调用此方法
-    //View需要根据传入的CellUpdateInfo更新对应格子的外观
+    //通知UI更新指定单元格的显示
     virtual void onCellUpdated(const CellUpdateInfo& info) = 0;
-
-    //当游戏结束时（胜利或失败），ViewModel会调用此方法
-    //View需要弹出一个对话框，向用户显示游戏结果
-    virtual void onShowGameOverDialog(const QString& message) = 0;
-
-    //当剩余旗帜数量变化时，ViewModel会调用此方法
-    //View需要更新界面上显示旗帜数量的标签
+    //通知UI显示游戏结束对话框
+    virtual void onShowGameOverDialog(const QString& message, bool isCampaign, bool isVictory, bool isLastLevel) = 0;
+    //更新旗帜数量的标签
     virtual void updateFlagsLabel(int flags) = 0;
-
-    //当游戏状态文本（如 "进行中"、"胜利"）变化时，ViewModel会调用此方法
-    //View需要更新界面上显示状态的标签
+    //更新游戏状态的标签（如"游戏中..."、"你赢了"）
     virtual void updateStatusLabel(const QString& text) = 0;
+    //在状态栏显示一条临时消息
+    virtual void showTemporaryMessage(const QString& message, int durationMs) = 0;
+    //根据当前游戏模式配置UI（如显示/隐藏特定按钮、设置窗口标题）
+    virtual void configureForMode(GameMode mode, const GameDifficulty& difficulty, int currentLevel, int totalLevels) = 0;
+    //更新计时器的显示
+    virtual void updateTimerDisplay(int seconds) = 0;
+    //设置提示按钮是否可用
+    virtual void setHintButtonEnabled(bool enabled) = 0;
 };
 
 #endif // IGAMEUI_H
