@@ -34,7 +34,8 @@ MinesweeperApp::MinesweeperApp()
 
     // --- 3. ViewModel/View -> App (应用级操作) ---
     connect(&m_viewModel, &GameViewModel::returnToHomeRequested, this, &MinesweeperApp::onReturnToHome);
-    connect(&m_gameWindow, &MainWindow::returnToHomeRequested, this, &MinesweeperApp::onReturnToHome);
+    // 在 MinesweeperApp.cpp 中添加这一行：
+    connect(&m_gameWindow, &MainWindow::returnToHomeRequested, &m_viewModel, &GameViewModel::onRequestReturnToHome);
 }
 
 MinesweeperApp::~MinesweeperApp() {
