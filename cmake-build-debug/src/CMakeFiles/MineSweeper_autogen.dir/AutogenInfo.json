@@ -1,0 +1,171 @@
+{
+	"AUTOGEN_COMMAND_LINE_LENGTH_MAX" : 32000,
+	"BUILD_DIR" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/MineSweeper_autogen",
+	"CMAKE_BINARY_DIR" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/Users/dell/Desktop/TRY2/MS15/src",
+	"CMAKE_EXECUTABLE" : "C:/Program Files/JetBrains/CLion 2025.1.1/bin/cmake/win/x64/bin/cmake.exe",
+	"CMAKE_LIST_FILES" : [ "C:/Users/dell/Desktop/TRY2/MS15/src/CMakeLists.txt" ],
+	"CMAKE_SOURCE_DIR" : "C:/Users/dell/Desktop/TRY2/MS15",
+	"CROSS_CONFIG" : false,
+	"DEP_FILE" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/MineSweeper_autogen/deps",
+	"DEP_FILE_RULE_NAME" : "MineSweeper_autogen/timestamp",
+	"HEADERS" : 
+	[
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/App/MineSweeperApp.h",
+			"MU",
+			"GJS2XSWUQI/moc_MineSweeperApp.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/Common/GameData.h",
+			"MU",
+			"U2NUAE3D6E/moc_GameData.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/Model/GameModel.h",
+			"MU",
+			"EXHL2H62WB/moc_GameModel.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/CustomGameDialog.h",
+			"MU",
+			"WB4RFHLAU6/moc_CustomGameDialog.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/HighScoreDialog.h",
+			"MU",
+			"WB4RFHLAU6/moc_HighScoreDialog.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/MainWindow.h",
+			"MU",
+			"WB4RFHLAU6/moc_MainWindow.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/StartWindow.h",
+			"MU",
+			"WB4RFHLAU6/moc_StartWindow.cpp",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/ViewModel/GameViewModel.h",
+			"MU",
+			"PZVFIPK5HQ/moc_GameViewModel.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/MineSweeper_autogen/include",
+	"MOC_COMPILATION_FILE" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/MineSweeper_autogen/mocs_compilation.cpp",
+	"MOC_DEFINITIONS" : 
+	[
+		"MINGW_HAS_SECURE_API=1",
+		"QT_CORE_LIB",
+		"QT_GUI_LIB",
+		"QT_WIDGETS_LIB",
+		"UNICODE",
+		"WIN32",
+		"WIN64",
+		"_ENABLE_EXTENDED_ALIGNED_STORAGE",
+		"_UNICODE",
+		"_WIN64"
+	],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : 
+	[
+		"C:/Users/dell/Desktop/TRY2/MS15/src",
+		"C:/Qt/6.9.1/mingw_64/include/QtCore",
+		"C:/Qt/6.9.1/mingw_64/include",
+		"C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++",
+		"C:/Qt/6.9.1/mingw_64/include/QtGui",
+		"C:/Qt/6.9.1/mingw_64/include/QtWidgets",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/include",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/x86_64-w64-mingw32/include"
+	],
+	"MOC_MACRO_NAMES" : 
+	[
+		"Q_OBJECT",
+		"Q_GADGET",
+		"Q_NAMESPACE",
+		"Q_NAMESPACE_EXPORT",
+		"Q_GADGET_EXPORT",
+		"Q_ENUM_NS"
+	],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : 
+	[
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/mingw/bin/g++.exe",
+		"-std=gnu++17",
+		"-dM",
+		"-E",
+		"-c",
+		"C:/Program Files/JetBrains/CLion 2025.1.1/bin/cmake/win/x64/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp"
+	],
+	"MOC_PREDEFS_FILE" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/MineSweeper_autogen/moc_predefs.h",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : [],
+	"MULTI_CONFIG" : false,
+	"PARALLEL" : 24,
+	"PARSE_CACHE_FILE" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/MineSweeper_autogen.dir/ParseCache.txt",
+	"QT_MOC_EXECUTABLE" : "C:/Qt/6.9.1/mingw_64/bin/moc.exe",
+	"QT_UIC_EXECUTABLE" : "C:/Qt/6.9.1/mingw_64/bin/uic.exe",
+	"QT_VERSION_MAJOR" : 6,
+	"QT_VERSION_MINOR" : 9,
+	"SETTINGS_FILE" : "C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/MineSweeper_autogen.dir/AutogenUsed.txt",
+	"SOURCES" : 
+	[
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/App/MineSweeperApp.cpp",
+			"MU",
+			null
+		],
+		[ "C:/Users/dell/Desktop/TRY2/MS15/src/Model/GameModel.cpp", "MU", null ],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/CustomGameDialog.cpp",
+			"MU",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/HighScoreDialog.cpp",
+			"MU",
+			null
+		],
+		[ "C:/Users/dell/Desktop/TRY2/MS15/src/View/MainWindow.cpp", "MU", null ],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/View/StartWindow.cpp",
+			"MU",
+			null
+		],
+		[
+			"C:/Users/dell/Desktop/TRY2/MS15/src/ViewModel/GameViewModel.cpp",
+			"MU",
+			null
+		],
+		[ "C:/Users/dell/Desktop/TRY2/MS15/src/main.cpp", "MU", null ]
+	],
+	"UIC_OPTIONS" : [],
+	"UIC_SEARCH_PATHS" : [],
+	"UIC_SKIP" : [],
+	"UIC_UI_FILES" : [],
+	"USE_BETTER_GRAPH" : true,
+	"VERBOSITY" : 0
+}

@@ -1,0 +1,7 @@
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/MineSweeper.dir
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/edit_cache.dir
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/rebuild_cache.dir
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/MineSweeper_autogen_timestamp_deps.dir
+C:/Users/dell/Desktop/TRY2/MS15/cmake-build-debug/src/CMakeFiles/MineSweeper_autogen.dir
